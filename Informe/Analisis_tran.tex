@@ -1,4 +1,4 @@
-\subsection{Anilisis Transitorio}
+\section{Anilisis Transitorio}
 En esta parte del trabajo vamos a analizar el esquemático que se puede ver en la Figura \ref{fig:circuito_tran}. 
 \begin{figure}[H]
     \centering
@@ -49,4 +49,30 @@ A su vez los datos utilizados para el trabajo se encuentran en la Tabla \ref{tab
     \label{tab:datos_transitorio}
 \end{table}
 
-\subsubsection{}
+\subsection{Analisis de la carga}
+
+Para esta etapa 
+
+\subsection{Analisis de la descarga}
+
+\subsection{Circuito sin resistencias}
+
+Si se analiza idealmente el circuito de la Figura \ref{fig:circuito_tran} suponiendo que $R_1=R_2=R_3=R_f=0\,\Omega$, el circuito no tendría ningún mecanismo de disipación de energía. En la etapa de carga, al cerrar la llave, la fuente ideal quedaría aplicada directamente sobre el capacitor y la bobina. Como el capacitor inicialmente descargado no puede cambiar su tensión instantáneamente sin una corriente impulsiva, el modelo ideal predice un pico de corriente teóricamente infinito en el instante inicial.
+
+Además, al quedar la bobina ideal conectada directamente a una fuente continua ideal, su corriente crecería sin límite con el tiempo, ya que se cumple:
+
+\[
+V_L = L \frac{di_L}{dt}
+\]
+
+Por lo tanto, si $V_L$ es constante y distinto de cero, la corriente por la bobina aumenta linealmente.
+
+En cambio, durante la descarga, si la fuente queda desconectada y solo permanece el conjunto ideal $LC$, la energía almacenada se intercambiaría indefinidamente entre el campo eléctrico del capacitor y el campo magnético de la bobina. En ese caso aparecería una oscilación senoidal no amortiguada, con frecuencia natural:
+
+\[
+\omega_0 = \frac{1}{\sqrt{LC}}
+\]
+
+Este comportamiento no puede ocurrir exactamente en la realidad, ya que todos los elementos poseen resistencias parásitas y pérdidas asociadas. Por eso, en un circuito real, la oscilación se amortigua y la energía almacenada termina disipándose en forma de calor.
+
+\subsection{Diagrama de montecarlo}
