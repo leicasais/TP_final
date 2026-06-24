@@ -1,0 +1,52 @@
+\subsection{Anilisis Transitorio}
+En esta parte del trabajo vamos a analizar el esquemático que se puede ver en la Figura \ref{fig:circuito_tran}. 
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[transform shape]
+	% Paths, nodes and wires:
+	\node[spdt] at (8.595, 1){};
+	\draw (9.19, 0.685) -| (12, 0.5) -- (12, 0.25);
+	\draw (12, 0.25) to[american inductor, l_={$L$}] (12, -1.75);
+	\draw (12, -1.75) to[american resistor, l_={$R_3$}] (12, -3.5);
+	\draw (10, 0.75) to[capacitor, l_={$C$}] (10, -1.75);
+	\draw (10, -1.75) to[american resistor, l_={$R_2$}] (10, -3.5);
+	\draw (5.75, 1) to[american resistor, l_={$R_f$}] (5.75, -1.5);
+	\draw (5.75, -1.5) to[battery1, l_={$V_i$}] (5.75, -3.5);
+	\draw (5.75, -3.5) -- (12, -3.5);
+	\node[rground] at (6.25, -3.5){};
+	\draw (5.75, 1) to[american resistor, l={$R_1$}] (8, 1);
+	\draw[line width=0.6pt, -latex] (12.75, -3.5) -- (12.75, 0.5);
+	\node[shape=rectangle, minimum width=0.715cm, minimum height=0.465cm](N1) at (13.375, -1.5){} node[anchor=center] at (N1.text){$V_0$};
+\end{tikzpicture}
+    \caption{Circuito utilizado para el análisis del transitorio}
+    \label{fig:circuito_tran}
+\end{figure}
+
+A su vez los datos utilizados para el trabajo se encuentran en la Tabla \ref{tab:datos_transitorio}. 
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|c|}
+        \hline
+        Elemento & Valor nominal & Valor medido \\
+        \hline
+        $V_i$ & $10\,\text{V}$ & \\
+        \hline
+        $R_1$ & $100\,\Omega$ & $98\,\Omega$ \\
+        \hline
+        $R_2\, [\Omega]$ & $8{,}2$ & $8{,}4$ \\
+        \hline
+        $R_3 \,[\Omega]$ & $6{,}8$ & $7{,}2$ \\
+        \hline
+        $R_f\,[\Omega]$ & $50$ & \\
+        \hline
+        $L\,[\text{mH}]$ & $1$ & $0{,}988$ \\
+        \hline
+        $C\,[\text{nF}]$ & $100$ & $107$ \\
+        \hline
+    \end{tabular}
+    \caption{Valores nominales y medidos de los elementos utilizados en el análisis transitorio}
+    \label{tab:datos_transitorio}
+\end{table}
+
+\subsubsection{}
