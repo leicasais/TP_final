@@ -6,7 +6,6 @@ GUI en Python para visualizar archivos CSV exportados desde osciloscopios de lab
 
 ## Requisitos
 
-- Python 3.8 o superior
 - Las siguientes librerías:
 
 ```bash
