@@ -229,7 +229,7 @@ class OscilloscopeGUI(_BaseClass):
         self.var_markers = tk.BooleanVar(value=False)
         
         self._chk(opts_frame, "Mostrar grilla",  self.var_grid,    1)
-        self._chk(opts_frame, "Escala log en Y", self.var_logy,    2)
+        self._chk(opts_frame, "Escala log en Y (Solo Osc)", self.var_logy,    2)
         self._chk(opts_frame, "Marcar máx/mín",  self.var_markers, 3)
 
         tk.Label(sb, text="Título del gráfico", bg=BG_MID, fg=FG_DIM,
@@ -411,13 +411,14 @@ class OscilloscopeGUI(_BaseClass):
         else:
             ax1.grid(False)
 
-        # TEXTO EN NEGRO PARA QUE SE VEA EN EL FONDO BLANCO
         ax1.set_ylabel("Ganancia [dB]", color="black", fontsize=10)
         ax1.set_xlabel("Frecuencia [Hz]", color="black", fontsize=10)
         ax1.set_title(title, color="black", fontsize=12, pad=10)
         
-        # Formateador escalar para Hz (evita 10^1, 10^2, etc.)
-        ax1.xaxis.set_major_formatter(ScalarFormatter())
+        # Formateador escalar forzado para Hz (apaga la notación científica)
+        formatter = ScalarFormatter()
+        formatter.set_scientific(False)
+        ax1.xaxis.set_major_formatter(formatter)
         
         ax1.axhline(-3, color="black", linestyle="--", linewidth=1, label="−3 dB")
 
@@ -448,6 +449,24 @@ class OscilloscopeGUI(_BaseClass):
             lines.append(l1)
             labels.append(f"Gan. {label}")
 
+            # ── LÓGICA DE MARCADORES MAX Y MIN PARA BODE ──
+            if self.var_markers.get():
+                i_max = np.argmax(gain)
+                i_min = np.argmin(gain)
+                
+                # Pico máximo
+                ax1.plot(freq[i_max], gain[i_max], "^", color=color, markersize=8)
+                ax1.axvline(freq[i_max], color=color, linewidth=0.6, linestyle=":")
+                ax1.text(freq[i_max], gain[i_max], f"  MAX {gain[i_max]:.2f} dB\n  ({freq[i_max]:.1f} Hz)",
+                         color="black", fontsize=8, va="bottom")
+                
+                # Pico mínimo
+                ax1.plot(freq[i_min], gain[i_min], "v", color=color, markersize=8)
+                ax1.axvline(freq[i_min], color=color, linewidth=0.6, linestyle=":")
+                ax1.text(freq[i_min], gain[i_min], f"  MIN {gain[i_min]:.2f} dB\n  ({freq[i_min]:.1f} Hz)",
+                         color="black", fontsize=8, va="top")
+
+            # ── FASE ──
             if data["phase"] is not None:
                 phase = data["phase"] * scale + offset
                 l2, = ax2.semilogx(freq, phase, color=color, linestyle="--", linewidth=1.8, label=f"Fase {label}")
@@ -516,11 +535,11 @@ class OscilloscopeGUI(_BaseClass):
                 self.ax.plot(t[i_max], y_final[i_max], "^", color=color, markersize=8)
                 self.ax.axvline(t[i_max], color=color, linewidth=0.6, linestyle=":")
                 self.ax.text(t[i_max], y_final[i_max], f"  MAX {y_final[i_max]:.3g}",
-                             color=color, fontsize=7.5, va="bottom")
+                             color="black", fontsize=7.5, va="bottom")
                 self.ax.plot(t[i_min], y_final[i_min], "v", color=color, markersize=8)
                 self.ax.axvline(t[i_min], color=color, linewidth=0.6, linestyle=":")
                 self.ax.text(t[i_min], y_final[i_min], f"  MIN {y_final[i_min]:.3g}",
-                             color=color, fontsize=7.5, va="top")
+                             color="black", fontsize=7.5, va="top")
 
         # TEXTO EN NEGRO
         self.ax.set_title(title, color="black", fontsize=12, pad=10)
