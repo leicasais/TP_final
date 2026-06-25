@@ -43,25 +43,20 @@ second,Volt,Volt,Volt,Volt
 - Segunda fila: unidades (`second`, `Volt`, ...)
 - Resto: datos numéricos
 
-Soporta archivos de **2 o 4 canales**. El separador puede ser `,` o tabulación.
+Soporta archivos de **1 a 4 canales**. El separador puede ser `,` o tabulación.
 
 ---
 
 ## Funcionalidades
 
-### Obligatorias
-- Carga archivos CSV con cualquier número de canales
+- Carga archivos CSV con cualquier número de canales (Entre 1 y 4)
 - Ejes con nombre y unidades
-- Escala automática del eje de tiempo (ns / µs / ms / s)
+- Escala automática en ambos ejes (ns / µs / ms / s o nV / µV / mV / V)
 - Título del gráfico editable (se inicializa con el nombre del archivo)
 - Offset y escala (amplitud) ajustables por canal
 - No crashea con archivos inválidos: muestra un mensaje de error
-
-### Recomendadas
-- Color personalizable por canal (picker de color nativo)
+- Color personalizable por canal
 - Grilla configurable (mostrar/ocultar)
-
-### Opcionales implementadas
 - Escala logarítmica en el eje Y (desplaza automáticamente si hay valores negativos)
 - Drag & Drop de archivos CSV (requiere `tkinterdnd2`)
 - Marcadores de máximo y mínimo por canal
