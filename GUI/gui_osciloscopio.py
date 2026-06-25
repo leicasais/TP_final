@@ -228,9 +228,9 @@ class OscilloscopeGUI(_BaseClass):
         self.var_logy    = tk.BooleanVar(value=False)
         self.var_markers = tk.BooleanVar(value=False)
         
-        self._chk(opts_frame, "Mostrar grilla",  self.var_grid,    1)
+        self._chk(opts_frame, "Mostrar grilla",           self.var_grid,    1)
         self._chk(opts_frame, "Escala log en Y (Solo Osc)", self.var_logy,    2)
-        self._chk(opts_frame, "Marcar máx/mín",  self.var_markers, 3)
+        self._chk(opts_frame, "Marcar máx / mín / -3dB",  self.var_markers, 3)
 
         tk.Label(sb, text="Título del gráfico", bg=BG_MID, fg=FG_DIM,
                  font=("Helvetica", 9)).pack(anchor="w", padx=12, pady=(10, 2))
@@ -449,7 +449,7 @@ class OscilloscopeGUI(_BaseClass):
             lines.append(l1)
             labels.append(f"Gan. {label}")
 
-            # ── LÓGICA DE MARCADORES MAX Y MIN PARA BODE ──
+            # ── LÓGICA DE MARCADORES (MAX, MIN Y CORTE -3dB) ──
             if self.var_markers.get():
                 i_max = np.argmax(gain)
                 i_min = np.argmin(gain)
@@ -465,6 +465,32 @@ class OscilloscopeGUI(_BaseClass):
                 ax1.axvline(freq[i_min], color=color, linewidth=0.6, linestyle=":")
                 ax1.text(freq[i_min], gain[i_min], f"  MIN {gain[i_min]:.2f} dB\n  ({freq[i_min]:.1f} Hz)",
                          color="black", fontsize=8, va="top")
+
+                # Corte en -3 dB (Interpolación Logarítmica)
+                s = np.sign(gain - (-3.0))
+                s[s == 0] = 1  # Evita duplicados si un punto cae exactamente en -3.00
+                crossings = np.where(np.diff(s))[0]
+
+                for idx_c in crossings:
+                    x1, x2 = freq[idx_c], freq[idx_c+1]
+                    y1, y2 = gain[idx_c], gain[idx_c+1]
+
+                    if y2 != y1:
+                        log_f = np.log10(x1) + (-3.0 - y1) * (np.log10(x2) - np.log10(x1)) / (y2 - y1)
+                        f_cut = 10**log_f
+                    else:
+                        f_cut = x1
+
+                    ax1.plot(f_cut, -3.0, "o", color=color, markersize=6, zorder=5)
+                    ax1.axvline(f_cut, color=color, linestyle=":", linewidth=1, alpha=0.8)
+                    
+                    ax1.annotate(
+                        f" -3dB @ {f_cut:.1f} Hz ",
+                        xy=(f_cut, -3.0),
+                        xytext=(6, 6), textcoords="offset points",
+                        fontsize=8, color=color, fontweight="bold",
+                        bbox=dict(boxstyle="round,pad=0.2", fc="white", ec=color, lw=0.8, alpha=0.9)
+                    )
 
             # ── FASE ──
             if data["phase"] is not None:
