@@ -6,6 +6,7 @@ import matplotlib
 matplotlib.use("TkAgg")
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 from matplotlib.figure import Figure
+from matplotlib.ticker import ScalarFormatter
 import os
 
 # ── Drag & Drop: usar TkinterDnD.Tk si está instalado, si no tk.Tk normal ──
@@ -18,6 +19,7 @@ except ImportError:
     _DND_AVAILABLE = False
 
 # ──────────────────────────────────────────────────────────────────────────────
+# PALETA DE COLORES: TEMA OSCURO (CONTROLES)
 CHANNEL_COLORS = ["#2196F3", "#F44336", "#4CAF50", "#FF9800", "#9C27B0", "#00BCD4"]
 CHANNEL_LABELS = ["CH1", "CH2", "CH3", "CH4", "CH5", "CH6"]
 
@@ -72,9 +74,6 @@ def load_oscilloscope_csv(path):
 
 
 def load_bode_csv(path):
-    """
-    Lee un CSV de Bode y agrupa múltiples canales (ganancia y fase) de forma dinámica.
-    """
     for enc in ("utf-8", "latin-1", "cp1252"):
         try:
             df = pd.read_csv(path, encoding=enc)
@@ -84,7 +83,7 @@ def load_bode_csv(path):
     else:
         raise ValueError("No se pudo decodificar el archivo CSV de Bode.")
 
-    df.columns = df.columns.str.strip()
+    df.columns = df.columns.astype(str).str.strip()
 
     freq_col = next((c for c in df.columns if "frequency" in c.lower()), None)
     if freq_col is None:
@@ -92,7 +91,6 @@ def load_bode_csv(path):
     
     freq = pd.to_numeric(df[freq_col], errors="coerce").values.astype(float)
 
-    # Buscar todas las columnas que parezcan ganancias y fases
     gain_cols = [c for c in df.columns if "gain" in c.lower() or "db" in c.lower()]
     phase_cols = [c for c in df.columns if "phase" in c.lower()]
 
@@ -107,7 +105,6 @@ def load_bode_csv(path):
         gain_data = pd.to_numeric(df[g_col], errors="coerce").values.astype(float)
         phase_data = pd.to_numeric(df[p_col], errors="coerce").values.astype(float) if p_col else None
         
-        # Guardamos diccionarios por canal para el bode
         channels[label] = {"gain": gain_data, "phase": phase_data}
 
     return freq, channels
@@ -117,7 +114,7 @@ def _is_bode_csv(path):
     for enc in ("utf-8", "latin-1", "cp1252"):
         try:
             df = pd.read_csv(path, encoding=enc, nrows=0)
-            df.columns = df.columns.str.strip()
+            df.columns = df.columns.astype(str).str.strip()
             cols = " ".join(df.columns).lower()
             return any(kw in cols for kw in ("frequency", "gain", "phase", " db"))
         except UnicodeDecodeError:
@@ -131,18 +128,17 @@ def _is_bode_csv(path):
 class OscilloscopeGUI(_BaseClass):
     def __init__(self):
         super().__init__()
-        self.title("Visualizador de Osciloscopio — TP Final TC1")
+        self.title("Visualizador de Osciloscopio y Bode — TP Final")
         self.geometry("1280x780")
         self.minsize(900, 600)
         self.configure(bg=BG_DARK)
         self.resizable(True, True)
 
-        self.time_raw  = None      # Se usa tanto para tiempo (osc) como frecuencia (bode)
-        self.channels  = {}        # Diccionario de canales
-        self.ch_vars   = {}        # Variables de UI de los canales
+        self.time_raw  = None      
+        self.channels  = {}        
+        self.ch_vars   = {}        
         self.file_path = None
-
-        self._mode     = "osc"     # "osc" | "bode"
+        self._mode     = "osc"     
 
         self._build_ui()
         self._setup_dnd()
@@ -158,7 +154,7 @@ class OscilloscopeGUI(_BaseClass):
         topbar.pack(fill="x", side="top")
         topbar.pack_propagate(False)
 
-        tk.Label(topbar, text="📡  Visualizador de Osciloscopio",
+        tk.Label(topbar, text="📡  Visualizador de Señales",
                  bg=BG_PANEL, fg=FG_TEXT,
                  font=("Helvetica", 14, "bold")).pack(side="left", padx=16, pady=12)
 
@@ -182,7 +178,8 @@ class OscilloscopeGUI(_BaseClass):
         self.plot_frame = tk.Frame(body, bg=BG_DARK)
         self.plot_frame.pack(side="left", fill="both", expand=True)
 
-        self.fig = Figure(figsize=(9, 5), facecolor="#0d1117")
+        # FIGURA EN BLANCO
+        self.fig = Figure(figsize=(9, 5), facecolor="white")
         self.ax  = self.fig.add_subplot(111)
         self._style_axes(self.ax)
 
@@ -190,30 +187,31 @@ class OscilloscopeGUI(_BaseClass):
         self.canvas.draw()
         self.canvas.get_tk_widget().pack(fill="both", expand=True)
 
-        toolbar_frame = tk.Frame(self.plot_frame, bg="#0d1117")
+        # TOOLBAR EN BLANCO PARA COMBINAR CON EL GRÁFICO
+        toolbar_frame = tk.Frame(self.plot_frame, bg="white")
         toolbar_frame.pack(fill="x")
         toolbar = NavigationToolbar2Tk(self.canvas, toolbar_frame)
-        toolbar.config(background="#0d1117")
+        toolbar.config(background="white")
         toolbar.update()
 
         dnd_hint = "Arrastrá un CSV aquí\n\no hacé clic para abrir" if _DND_AVAILABLE \
-                   else "📂\n\nHacé clic aquí para abrir un CSV\n\no usá el botón  «Abrir CSV»"
+                   else "📂\n\nHacé clic aquí para abrir un CSV\n\no usá el botón «Abrir CSV»"
 
-        self._drop_frame = tk.Frame(self.plot_frame, bg="#0d1117")
+        self._drop_frame = tk.Frame(self.plot_frame, bg="white")
         self._drop_frame.place(relx=0.5, rely=0.5, anchor="center")
 
         self._drop_label = tk.Label(
             self._drop_frame, text=dnd_hint,
-            bg="#111c2b", fg=FG_DIM, font=("Helvetica", 15),
+            bg="#f0f0f0", fg="black", font=("Helvetica", 15),
             justify="center", padx=40, pady=30,
             cursor="hand2", relief="groove", bd=2
         )
         self._drop_label.pack()
         self._drop_label.bind("<Button-1>", lambda e: self._open_file())
         self._drop_label.bind("<Enter>",
-            lambda e: self._drop_label.configure(fg=FG_TEXT, bg="#1a2a40"))
+            lambda e: self._drop_label.configure(fg=ACCENT, bg="#e0e0e0"))
         self._drop_label.bind("<Leave>",
-            lambda e: self._drop_label.configure(fg=FG_DIM, bg="#111c2b"))
+            lambda e: self._drop_label.configure(fg="black", bg="#f0f0f0"))
 
     def _build_sidebar(self):
         sb = self.sidebar
@@ -229,6 +227,7 @@ class OscilloscopeGUI(_BaseClass):
         self.var_grid    = tk.BooleanVar(value=True)
         self.var_logy    = tk.BooleanVar(value=False)
         self.var_markers = tk.BooleanVar(value=False)
+        
         self._chk(opts_frame, "Mostrar grilla",  self.var_grid,    1)
         self._chk(opts_frame, "Escala log en Y", self.var_logy,    2)
         self._chk(opts_frame, "Marcar máx/mín",  self.var_markers, 3)
@@ -237,6 +236,7 @@ class OscilloscopeGUI(_BaseClass):
                  font=("Helvetica", 9)).pack(anchor="w", padx=12, pady=(10, 2))
         self.var_title = tk.StringVar(value="Señal de osciloscopio")
         self.var_title.trace_add("write", lambda *_: self._plot())
+        
         self.entry_title = tk.Entry(sb, textvariable=self.var_title,
                                     bg="#1e2a3a", fg=FG_TEXT,
                                     insertbackground=FG_TEXT,
@@ -292,8 +292,7 @@ class OscilloscopeGUI(_BaseClass):
         hdr = tk.Frame(card, bg=BG_PANEL)
         hdr.pack(fill="x")
 
-        indicator = tk.Label(hdr, text="●", bg=BG_PANEL, fg=color,
-                             font=("Helvetica", 14))
+        indicator = tk.Label(hdr, text="●", bg=BG_PANEL, fg=color, font=("Helvetica", 14))
         indicator.pack(side="left", padx=(0, 4))
 
         tk.Checkbutton(hdr, text=label,
@@ -311,8 +310,8 @@ class OscilloscopeGUI(_BaseClass):
 
         controls = tk.Frame(card, bg=BG_PANEL)
         controls.pack(fill="x", pady=(6, 0))
-        self._labeled_entry(controls, "Offset [V/dB]:", self.ch_vars[label]["offset"], 0, 0)
-        self._labeled_entry(controls, "Escala ×:",   self.ch_vars[label]["scale"],  1, 0)
+        self._labeled_entry(controls, "Offset:", self.ch_vars[label]["offset"], 0, 0)
+        self._labeled_entry(controls, "Escala ×:", self.ch_vars[label]["scale"],  1, 0)
 
     def _labeled_entry(self, parent, text, variable, row, col, width=7):
         tk.Label(parent, text=text, bg=BG_PANEL, fg=FG_DIM,
@@ -322,7 +321,7 @@ class OscilloscopeGUI(_BaseClass):
                  relief="flat", font=("Helvetica", 9), width=width
                  ).grid(row=row, column=col+1, sticky="w", padx=(4, 0), pady=1)
 
-    # ── Color picker ──────────────────────────────────────────────────────────
+    # ── Interacción ───────────────────────────────────────────────────────────
 
     def _pick_color(self, label, indicator_widget):
         from tkinter import colorchooser
@@ -333,8 +332,6 @@ class OscilloscopeGUI(_BaseClass):
             indicator_widget.configure(fg=color)
             self.ch_vars[label]["color_btn"].configure(bg=color)
             self._plot()
-
-    # ── Archivo ───────────────────────────────────────────────────────────────
 
     def _open_file(self):
         path = filedialog.askopenfilename(
@@ -357,20 +354,17 @@ class OscilloscopeGUI(_BaseClass):
         if _is_bode_csv(path):
             try:
                 time_raw, channels = load_bode_csv(path)
+                self._mode = "bode"
             except Exception as e:
                 messagebox.showerror("Archivo inválido", f"No se pudo cargar el Bode:\n{e}")
                 return
-            self._mode = "bode"
         else:
             try:
                 time_raw, channels = load_oscilloscope_csv(path)
-            except (ValueError, pd.errors.ParserError, UnicodeDecodeError, KeyError) as e:
+                self._mode = "osc"
+            except Exception as e:
                 messagebox.showerror("Archivo inválido", f"No se pudo cargar el archivo.\n\n{e}")
                 return
-            except Exception as e:
-                messagebox.showerror("Error inesperado", str(e))
-                return
-            self._mode = "osc"
 
         self.time_raw = time_raw
         self.channels = channels
@@ -383,8 +377,6 @@ class OscilloscopeGUI(_BaseClass):
         self._build_channel_controls()
         self._plot()
 
-    # ── Drag & Drop ───────────────────────────────────────────────────────────
-
     def _setup_dnd(self):
         if not _DND_AVAILABLE:
             return
@@ -394,15 +386,13 @@ class OscilloscopeGUI(_BaseClass):
         except Exception:
             pass
 
-    # ── Gráfico: dispatcher ───────────────────────────────────────────────────
+    # ── Gráfico ───────────────────────────────────────────────────────────────
 
     def _plot(self):
         if self._mode == "bode":
             self._plot_bode()
         else:
             self._plot_oscilloscope()
-
-    # ── Bode ──────────────────────────────────────────────────────────────────
 
     def _plot_bode(self):
         if self.time_raw is None:
@@ -414,25 +404,29 @@ class OscilloscopeGUI(_BaseClass):
         ax1 = self.fig.add_subplot(111)
         self._style_axes(ax1)
 
-        title    = self.var_title.get().strip() or "Diagrama de Bode"
-        grid_kw  = dict(color="#2a3a50", linewidth=0.6, linestyle="--", which="both")
-
-        ax1.set_ylabel("Ganancia [dB]", color=FG_TEXT, fontsize=10)
-        ax1.set_xlabel("Frecuencia [Hz]", color=FG_DIM, fontsize=10)
-        ax1.set_title(title, color=FG_TEXT, fontsize=12, pad=10)
-        ax1.grid(self.var_grid.get(), **grid_kw)
+        title = self.var_title.get().strip() or "Diagrama de Bode"
         
-        # Referencia fija en -3dB
-        ax1.axhline(-3, color=FG_DIM, linestyle="--", linewidth=1, label="−3 dB")
+        if self.var_grid.get():
+            ax1.grid(True, color="#cccccc", linewidth=0.6, linestyle="--", which="both")
+        else:
+            ax1.grid(False)
 
-        # Configurar el eje secundario (twinx) para la Fase
+        # TEXTO EN NEGRO PARA QUE SE VEA EN EL FONDO BLANCO
+        ax1.set_ylabel("Ganancia [dB]", color="black", fontsize=10)
+        ax1.set_xlabel("Frecuencia [Hz]", color="black", fontsize=10)
+        ax1.set_title(title, color="black", fontsize=12, pad=10)
+        
+        # Formateador escalar para Hz (evita 10^1, 10^2, etc.)
+        ax1.xaxis.set_major_formatter(ScalarFormatter())
+        
+        ax1.axhline(-3, color="black", linestyle="--", linewidth=1, label="−3 dB")
+
         ax2 = ax1.twinx()
         self._style_axes(ax2)
-        ax2.patch.set_visible(False)  # Fundamental para no tapar la grilla de ax1
-        ax2.set_ylabel("Fase [°]", color=FG_TEXT, fontsize=10)
+        ax2.patch.set_visible(False)  
+        ax2.set_ylabel("Fase [°]", color="black", fontsize=10)
 
         lines, labels = [], []
-        # Capturamos la línea de -3dB para la leyenda unificada
         h, l = ax1.get_legend_handles_labels()
         lines.extend(h)
         labels.extend(l)
@@ -449,25 +443,21 @@ class OscilloscopeGUI(_BaseClass):
             except (tk.TclError, ValueError):
                 scale, offset = 1.0, 0.0
 
-            # Procesamiento de la Ganancia
             gain = data["gain"] * scale + offset
             l1, = ax1.semilogx(freq, gain, color=color, linestyle="-", linewidth=1.8, label=f"Gan. {label}")
             lines.append(l1)
             labels.append(f"Gan. {label}")
 
-            # Procesamiento de la Fase (si el archivo la tiene)
             if data["phase"] is not None:
                 phase = data["phase"] * scale + offset
                 l2, = ax2.semilogx(freq, phase, color=color, linestyle="--", linewidth=1.8, label=f"Fase {label}")
                 lines.append(l2)
                 labels.append(f"Fase {label}")
 
-        ax1.legend(lines, labels, facecolor=BG_PANEL, edgecolor="#445566", labelcolor=FG_TEXT, fontsize=9)
+        ax1.legend(lines, labels, facecolor="white", edgecolor="#cccccc", labelcolor="black", fontsize=9)
 
         self.fig.tight_layout()
         self.canvas.draw()
-
-    # ── Osciloscopio ──────────────────────────────────────────────────────────
 
     def _plot_oscilloscope(self):
         if self.time_raw is None:
@@ -532,9 +522,10 @@ class OscilloscopeGUI(_BaseClass):
                 self.ax.text(t[i_min], y_final[i_min], f"  MIN {y_final[i_min]:.3g}",
                              color=color, fontsize=7.5, va="top")
 
-        self.ax.set_title(title, color=FG_TEXT, fontsize=12, pad=10)
-        self.ax.set_xlabel(t_label, color=FG_DIM, fontsize=10)
-        self.ax.set_ylabel(y_label, color=FG_DIM, fontsize=10)
+        # TEXTO EN NEGRO
+        self.ax.set_title(title, color="black", fontsize=12, pad=10)
+        self.ax.set_xlabel(t_label, color="black", fontsize=10)
+        self.ax.set_ylabel(y_label, color="black", fontsize=10)
 
         if self.var_logy.get():
             try:
@@ -542,15 +533,20 @@ class OscilloscopeGUI(_BaseClass):
             except Exception:
                 pass
 
-        self.ax.grid(self.var_grid.get(), color="#2a3a50", linewidth=0.6, linestyle="--")
-        self.ax.legend(facecolor=BG_PANEL, edgecolor="#445566", labelcolor=FG_TEXT, fontsize=9)
+        if self.var_grid.get():
+            self.ax.grid(True, color="#cccccc", linewidth=0.6, linestyle="--")
+        else:
+            self.ax.grid(False)
+            
+        self.ax.legend(facecolor="white", edgecolor="#cccccc", labelcolor="black", fontsize=9)
         self.canvas.draw()
 
     def _style_axes(self, ax):
-        ax.set_facecolor("#0d1117")
-        ax.tick_params(colors=FG_DIM, labelsize=8)
+        # FONDO Y TEXTO DEL GRÁFICO PREPARADOS PARA BLANCO
+        ax.set_facecolor("white")
+        ax.tick_params(colors="black", labelsize=8)
         for spine in ax.spines.values():
-            spine.set_edgecolor("#2a3a50")
+            spine.set_edgecolor("#cccccc")
 
 
 if __name__ == "__main__":
