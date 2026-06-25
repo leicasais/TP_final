@@ -16,4 +16,3 @@ def guardar_datos(df):  #df-> Dataframe del CSV ; tiempo-> vector, channel-> mat
     channel = df.iloc[:, 1:].to_numpy().T 
     
     return tiempo, channel
-
