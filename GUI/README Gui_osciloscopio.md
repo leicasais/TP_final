@@ -79,13 +79,3 @@ Soporta archivos de **1 a 4 canales**. El separador puede ser `,` o tabulación.
 | **Escala ×** | Multiplica la amplitud de la curva del canal |
 
 Todos los controles se aplican en tiempo real sin necesidad de confirmar.
-
----
-
-## Archivos
-
-```
-gui_osciloscopio.py       — Código principal de la GUI
-muestra_osciloscopio.csv  — CSV de prueba con 4 canales (señales senoidales)
-README.md                 — Este archivo
-```
