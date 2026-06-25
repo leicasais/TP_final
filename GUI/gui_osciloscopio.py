@@ -1,18 +1,3 @@
-"""
-GUI para visualizar CSVs de osciloscopio - TP Final TC1
-Requisitos cubiertos:
-  [OBLIGATORIO]  Carga cualquier CSV sin crashear con archivos inválidos
-  [OBLIGATORIO]  N columnas / canales (2 o 4 canales)
-  [OBLIGATORIO]  Ejes nombrados y título
-  [OBLIGATORIO]  Escala automática de unidades (µs, ms, s / mV, V)
-  [OBLIGATORIO]  Desplazamiento (offset) y escalado (amplitud) por canal
-  [RECOMENDADO]  Color configurable por canal
-  [RECOMENDADO]  Grilla configurable (mostrar/ocultar)
-  [OPCIONAL]     Escala logarítmica en Y
-  [OPCIONAL]     Drag & Drop del archivo CSV
-  [OPCIONAL]     Marcar máximo y mínimo de cada canal
-"""
-
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import pandas as pd
@@ -354,7 +339,8 @@ class OscilloscopeGUI(_BaseClass):
         t, t_label = auto_scale_time(self.time_raw)
         title = self.var_title.get().strip() or "Señal de osciloscopio"
 
-        any_plotted = False
+        # 1. Recopilar datos base de todos los canales visibles
+        visible_data = {}
         for label, data in self.channels.items():
             v = self.ch_vars.get(label)
             if v is None or not v["visible"].get():
@@ -364,60 +350,76 @@ class OscilloscopeGUI(_BaseClass):
                 offset = float(v["offset"].get())
             except (tk.TclError, ValueError):
                 scale, offset = 1.0, 0.0
+            
+            y_base = data * scale + offset
+            visible_data[label] = {
+                "y_base": y_base,
+                "color": v["color"]
+            }
 
-            y     = data * scale + offset
-            color = v["color"]
-            self.ax.plot(t, y, color=color, linewidth=1.4, label=label)
-            any_plotted = True
+        if not visible_data:
+            self.canvas.draw()
+            return
 
+        # 2. Manejo de Escala Logarítmica (Desplazamiento general si hay valores <= 0)
+        shift = 0.0
+        is_log_shifted = False
+        if self.var_logy.get():
+            y_min_global = min(np.min(d["y_base"]) for d in visible_data.values())
+            if y_min_global <= 0:
+                shift = abs(y_min_global) + 0.001
+                is_log_shifted = True
+
+        # 3. Calcular factor de escala global en Y (basado en todas las señales visibles)
+        y_label = "Tensión [V]"
+        factor_y = 1.0
+        
+        max_abs_y = max(np.max(np.abs(d["y_base"] + shift)) for d in visible_data.values())
+        if max_abs_y > 0:
+            if max_abs_y < 1e-3:
+                factor_y, y_label = 1e6, "Tensión [µV]"
+            elif max_abs_y < 1:
+                factor_y, y_label = 1e3, "Tensión [mV]"
+
+        if is_log_shifted:
+            y_label += " (desplazada)"
+
+        # 4. Graficar canales aplicando factor y shift
+        for label, d in visible_data.items():
+            y_final = (d["y_base"] + shift) * factor_y
+            color = d["color"]
+
+            self.ax.plot(t, y_final, color=color, linewidth=1.4, label=label)
+
+            # Marcadores de máximo y mínimo
             if self.var_markers.get():
-                i_max = np.argmax(y)
-                i_min = np.argmin(y)
-                self.ax.plot(t[i_max], y[i_max], "^", color=color, markersize=8)
+                i_max = np.argmax(y_final)
+                i_min = np.argmin(y_final)
+                
+                self.ax.plot(t[i_max], y_final[i_max], "^", color=color, markersize=8)
                 self.ax.axvline(t[i_max], color=color, linewidth=0.6, linestyle=":")
-                self.ax.text(t[i_max], y[i_max], f"  MAX {y[i_max]:.3g} V",
+                self.ax.text(t[i_max], y_final[i_max], f"  MAX {y_final[i_max]:.3g}",
                              color=color, fontsize=7.5, va="bottom")
-                self.ax.plot(t[i_min], y[i_min], "v", color=color, markersize=8)
+                
+                self.ax.plot(t[i_min], y_final[i_min], "v", color=color, markersize=8)
                 self.ax.axvline(t[i_min], color=color, linewidth=0.6, linestyle=":")
-                self.ax.text(t[i_min], y[i_min], f"  MIN {y[i_min]:.3g} V",
+                self.ax.text(t[i_min], y_final[i_min], f"  MIN {y_final[i_min]:.3g}",
                              color=color, fontsize=7.5, va="top")
 
+        # 5. Configurar Ejes, Títulos y Leyendas
         self.ax.set_title(title, color=FG_TEXT, fontsize=12, pad=10)
         self.ax.set_xlabel(t_label, color=FG_DIM, fontsize=10)
-        self.ax.set_ylabel("Tensión [V]", color=FG_DIM, fontsize=10)
+        self.ax.set_ylabel(y_label, color=FG_DIM, fontsize=10)
 
         if self.var_logy.get():
             try:
-                y_min_global = min(
-                    np.min(self.channels[lbl] * float(self.ch_vars[lbl]["scale"].get())
-                           + float(self.ch_vars[lbl]["offset"].get()))
-                    for lbl in self.channels
-                    if self.ch_vars.get(lbl) and self.ch_vars[lbl]["visible"].get()
-                )
-                if y_min_global <= 0:
-                    shift = abs(y_min_global) + 0.001
-                    self.ax.clear()
-                    self._style_axes(self.ax)
-                    self.ax.set_title(title, color=FG_TEXT, fontsize=12, pad=10)
-                    self.ax.set_xlabel(t_label, color=FG_DIM, fontsize=10)
-                    self.ax.set_ylabel("Tensión [V] (desplazada)", color=FG_DIM, fontsize=10)
-                    for lbl, data in self.channels.items():
-                        v = self.ch_vars.get(lbl)
-                        if v is None or not v["visible"].get():
-                            continue
-                        y_s = data * float(v["scale"].get()) + float(v["offset"].get()) + shift
-                        self.ax.plot(t, y_s, color=v["color"], linewidth=1.4, label=lbl)
-                    self.ax.grid(self.var_grid.get(), color="#2a3a50",
-                                 linewidth=0.6, linestyle="--")
                 self.ax.set_yscale("log")
             except Exception:
                 pass
 
         self.ax.grid(self.var_grid.get(), color="#2a3a50", linewidth=0.6, linestyle="--")
-
-        if any_plotted:
-            self.ax.legend(facecolor=BG_PANEL, edgecolor="#445566",
-                           labelcolor=FG_TEXT, fontsize=9)
+        self.ax.legend(facecolor=BG_PANEL, edgecolor="#445566", labelcolor=FG_TEXT, fontsize=9)
+        
         self.canvas.draw()
 
     def _style_axes(self, ax):
