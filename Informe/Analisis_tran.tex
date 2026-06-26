@@ -88,6 +88,9 @@ Luego se simulo en LTSpice y se hizo el circuito en el laboratorio. A partir de 
     \label{fig:graf_carga}
 \end{figure}
 
+Como se puede ver en el gráfico, la curva real presenta un solo pico de tensión y luego la salida se estabiliza en aproximadamente $(1{,}6,V)$. Esto se debe a que, durante la carga, la fuente permanece conectada al circuito y entrega energía hasta alcanzar el régimen permanente. En dicho estado, el capacitor se comporta como un circuito abierto y la bobina como un cortocircuito, quedando la tensión final determinada por el divisor resistivo formado por $(R_1)$, la resistencia interna de la fuente $(R_f)$, $(R_3)$ y la resistencia serie de la bobina $(R_L)$.
+
+El pico inicial aparece debido al intercambio transitorio de energía entre el capacitor y la bobina. Sin embargo, la presencia de resistencias en el circuito disipa parte de esa energía, por lo que la oscilación se amortigua rápidamente y la salida converge al valor de continua esperado.
 
 
 \subsection{Análisis de la descarga}
@@ -108,6 +111,7 @@ e^{-13675t}
 v_{C,\text{descarga}}(t) = e^{-13675t} \left[ 1{,}6072\cos(99060{,}56t) - 8{,}2505\sin(99060{,}56t) \right]
 
 \]
+
 \[
 i_{L,\text{descarga}}(t) = e^{-13675t} \left[ 0{,}08393\cos(99060{,}56t) + 0{,}004639\sin(99060{,}56t) \right]
 \]
@@ -120,8 +124,11 @@ Luego se simulo en LTSpice y se hizo el circuito en el laboratorio. A partir de 
     \label{fig:graf_descarga}
 \end{figure}
 
-Como se puede ver en el grafico la curva real tiene un mayor amortigumiento que los calculados esto se pude deber a diferentes efectos resistivos no considerados en el modelo que se precentan en la realidad, lo que genera una disminucion considerable en los picos posteriores al pico inicial.   
+En la etapa de descarga se observa una oscilación amortiguada alrededor del valor final. Este comportamiento se debe a que, al abrirse la llave, la fuente queda desconectada y el circuito evoluciona únicamente con la energía inicialmente almacenada en el capacitor y la bobina. Durante este proceso, la energía se intercambia entre ambos elementos, generando la oscilación característica del circuito RLC.
 
+Sin embargo, la amplitud de dicha oscilación no se mantiene constante, sino que decrece con el tiempo debido al factor exponencial $(e^{-\alpha  t})$. Por lo tanto, cuanto mayor sea el valor de $(\alpha)$, más rápido disminuirán los picos del transitorio. En el modelo teórico, la descarga presenta un valor de $(\alpha)$ menor que la carga, por lo que se encuentra menos amortiguada y permite observar varios picos antes de alcanzar el régimen permanente.
+
+La diferencia observada entre la curva experimental y la teórica en los picos posteriores puede deberse a que el circuito real posee pérdidas adicionales no consideradas completamente en el modelo, como resistencias de contacto, cables, protoboard, ESR del capacitor y pérdidas reales de la bobina. Estas pérdidas incrementan el amortiguamiento efectivo de la descarga experimental, haciendo que los picos disminuyan más rápidamente que en la simulación o en el cálculo teórico.
 
 \subsection{Analisis de los parametros}
 Usando la ecuación $\omega_d = \frac{\pi}{\Delta t}$, donde $\Delta t $ es el tiempo que pasa entre un maximo y el siguiente minimo, medio periodo. Se obtuvo la pseudofrecuencia de oscilacion del transitorio para la carga y la descarga. 
@@ -150,7 +157,33 @@ Ademas se midio el voltaje de sobrepico, $V_{sp}$, y el tiempo de sobrepico, $t_
     \caption{Comparación de los parámetros del transitorio de carga y descarga.}
     \label{tab:transitorio_parametros}
 \end{table}
-Como se puede apreciar, la pseudofrecuencia amortiguada $(\omega_d)$ resulta mayor en la etapa de descarga que en la de carga. Esto se debe a que, al abrir la llave, se desconectan la fuente, $(R_1)$ y la resistencia interna de la fuente $(R_f)$. Por lo tanto, cambia la resistencia equivalente que interviene en la dinámica del circuito, esto genera un aumento de amortiguamiento.
+
+La pseudofrecuencia amortiguada $(\omega_d)$ resulta mayor en la etapa de descarga que en la de carga. Esto se debe a que, al abrir la llave, se desconectan la fuente, $(R_1)$ y la resistencia interna de la fuente $(R_f)$. Por lo tanto, cambia la resistencia equivalente que interviene en la dinámica del circuito, esto genera un decremento de amortiguamiento.
+
+Como se puede apreciar en las ecuaciones: 
+\[
+R_a = R_1 + R_f
+\]
+\[
+R_b = R_3 + R_L
+\]
+
+\[
+\alpha_\text{carga}
+=
+\frac{1}{2}
+\left[
+\frac{1}{(R_a+R_2)C}
++
+\frac{R_b+\frac{R_2R_a}{R_a+R_2}}{L}
+\right]
+\]
+
+\[
+\alpha_\text{descarga}
+=
+\frac{R_2+R_3+R_L}{2L}
+\]
 
 Considerando además la resistencia serie real de la bobina, $(R_L=12{,}35,\Omega)$, se obtiene para la carga $(\alpha_\text{carga}=59575,s^{-1})$ y $(\omega_{d,\text{carga}}=86{,}39,krad/s)$. En cambio, para la descarga se obtiene $(\alpha_\text{descarga}=13675,s^{-1})$ y $(\omega_{d,\text{descarga}}=99{,}06,krad/s)$.
 
