@@ -1,22 +1,28 @@
-\section{Anilisis Transitorio}
-En esta parte del trabajo vamos a analizar el esquemático que se puede ver en la Figura \ref{fig:circuito_tran}. 
+\section{Análisis Transitorio}
+En esta parte del trabajo vamos a analizar el esquemático que se puede ver en la Figura \ref{fig:circuito_tran}. En ambas expresiones se tomó $t=0$ en el instante de cambio de la llave. 
+Para la carga, $t=0$ corresponde al cierre de la llave, mientras que para la descarga corresponde a su apertura. Además, se incorporó una resistencia serie de la bobina $R_L=12.35\,\Omega$, obtenida a partir del ajuste del valor final medido en el osciloscopio y una resistencia asociada a la fuente, $R_f$.
+
 \begin{figure}[H]
     \centering
     \begin{tikzpicture}[transform shape]
 	% Paths, nodes and wires:
-	\node[spdt] at (8.595, 1){};
-	\draw (9.19, 0.685) -| (12, 0.5) -- (12, 0.25);
-	\draw (12, 0.25) to[american inductor, l_={$L$}] (12, -1.75);
-	\draw (12, -1.75) to[american resistor, l_={$R_3$}] (12, -3.5);
-	\draw (10, 0.75) to[capacitor, l_={$C$}] (10, -1.75);
-	\draw (10, -1.75) to[american resistor, l_={$R_2$}] (10, -3.5);
-	\draw (5.75, 1) to[american resistor, l_={$R_f$}] (5.75, -1.5);
-	\draw (5.75, -1.5) to[battery1, l_={$V_i$}] (5.75, -3.5);
-	\draw (5.75, -3.5) -- (12, -3.5);
-	\node[rground] at (6.25, -3.5){};
-	\draw (5.75, 1) to[american resistor, l={$R_1$}] (8, 1);
-	\draw[line width=0.6pt, -latex] (12.75, -3.5) -- (12.75, 0.5);
-	\node[shape=rectangle, minimum width=0.715cm, minimum height=0.465cm](N1) at (13.375, -1.5){} node[anchor=center] at (N1.text){$V_0$};
+	\draw (1, 1.75) to[battery1, l={$V_i$}] (1, -0.25);
+	\draw (1, 4) to[american resistor, l={$R_1$}] (4.5, 4);
+	\node[spdt] at (5.095, 4){};
+	\draw (5.69, 3.685) -| (7, 3.5);
+	\draw (7, 1.5) to[capacitor, l={$C$}] (7, -0.25);
+	\draw (7, 3.685) -| (9, 3);
+	\draw (9, 3) to[american resistor, l={$R_L$}] (9, 1.5);
+	\draw (9, 1.5) to[american inductor, l={$L$}] (9, -0.25);
+	\draw (9, -0.25) to[american resistor, l={$R_3$}] (9, -2.25);
+	\draw (7, 3.5) -- (7, 1.5);
+	\draw (7, -0.25) to[american resistor, l={$R_2$}] (7, -2.25);
+	\draw (9, -2.25) |- (1, -2.25) -- (1, 2);
+	\draw (1, 2) to[american resistor, l={$R_f$}] (1, 4);
+	\draw[-latex] (10.75, -2.25) -- (10.75, 3.5);
+	\node[shape=rectangle, minimum width=1.715cm, minimum height=1.215cm](N1) at (11.125, 0.625){} node[anchor=center] at (N1.text){$V_0$};
+	\node[ground] at (1.5, -2.25){};
+	\node[ground] at (22.5, 4.25){};
 \end{tikzpicture}
     \caption{Circuito utilizado para el análisis del transitorio}
     \label{fig:circuito_tran}
@@ -30,15 +36,17 @@ A su vez los datos utilizados para el trabajo se encuentran en la Tabla \ref{tab
         \hline
         Elemento & Valor nominal & Valor medido \\
         \hline
-        $V_i$ & $10\,\text{V}$ & \\
+        $V_i$ & $10\,\text{V}$ & $10\,\text{V}$\\
         \hline
-        $R_1$ & $100\,\Omega$ & $98\,\Omega$ \\
+        $R_1$ & $50\,\Omega$ & $47\,\Omega$ \\
         \hline
         $R_2\, [\Omega]$ & $8{,}2$ & $8{,}4$ \\
         \hline
         $R_3 \,[\Omega]$ & $6{,}8$ & $7{,}2$ \\
         \hline
-        $R_f\,[\Omega]$ & $50$ & \\
+        $R_f\,[\Omega]$ & $50$ & -- \\
+        \hline
+         $R_L\,[\Omega]$ & $12,35$ & -- \\
         \hline
         $L\,[\text{mH}]$ & $1$ & $0{,}988$ \\
         \hline
@@ -49,10 +57,106 @@ A su vez los datos utilizados para el trabajo se encuentran en la Tabla \ref{tab
     \label{tab:datos_transitorio}
 \end{table}
 
-\subsection{Analisis de la carga}
-Para esta etapa 
+\subsection{Análisis de la carga}
 
-\subsection{Analisis de la descarga}
+Inicialmente se hizo el análisis teórico del circuito del que se obtuvieron las siguientes ecuaciones: 
+\[
+V_{o,\text{carga}}(t)
+=
+1.6072
++
+e^{-59575t}
+\left[
+-0.8494\cos(86387.70t)
++
+9.2354\sin(86387.70t)
+\right]
+\]
+
+\[
+v_{C,\text{carga}}(t) = 1{,}6072 + e^{-59575t} \left[ -1{,}6072\cos(86387{,}70t) + 9{,}5901\sin(86387{,}70t) \right]
+\]
+
+\[
+i_{L,\text{carga}}(t) = 0{,}08393 + e^{-59575t} \left[ -0{,}08393\cos(86387{,}70t) - 0{,}04911\sin(86387{,}70t) \right]
+\]
+Luego se simulo en LTSpice y se hizo el circuito en el laboratorio. A partir de estas pruebas se gráfico con el GUI hecho en python los resultados obtenidos del análisis teórico, simulado y practico, como se puede ver en la Figura \ref{fig:graf_carga}. 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{carga_comparacion.png}
+    \caption{Gráfico teórico, practico y simulado de la carga del circuito analizado}
+    \label{fig:graf_carga}
+\end{figure}
+
+
+
+\subsection{Análisis de la descarga}
+Inicialmente se hizo el análisis teórico del circuito del que se obtuvieron las siguientes ecuaciones: 
+\[
+V_{o,\text{descarga}}(t)
+=
+e^{-13675t}
+\left[
+0.9190\cos(99060.56t)
+-
+8.2885\sin(99060.56t)
+\right]
+\qquad [V]
+\]
+
+\[
+v_{C,\text{descarga}}(t) = e^{-13675t} \left[ 1{,}6072\cos(99060{,}56t) - 8{,}2505\sin(99060{,}56t) \right]
+
+\]
+\[
+i_{L,\text{descarga}}(t) = e^{-13675t} \left[ 0{,}08393\cos(99060{,}56t) + 0{,}004639\sin(99060{,}56t) \right]
+\]
+Luego se simulo en LTSpice y se hizo el circuito en el laboratorio. A partir de estas pruebas se gráfico con el GUI hecho en python los resultados obtenidos del análisis teórico, simulado y practico, como se puede ver en la Figura \ref{fig:graf_descarga}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{descarga_comparacion.png}
+    \caption{Gráfico teórico, practico y simulado de la carga del circuito analizado}
+    \label{fig:graf_descarga}
+\end{figure}
+
+Como se puede ver en el grafico la curva real tiene un mayor amortigumiento que los calculados esto se pude deber a diferentes efectos resistivos no considerados en el modelo que se precentan en la realidad, lo que genera una disminucion considerable en los picos posteriores al pico inicial.   
+
+
+\subsection{Analisis de los parametros}
+Usando la ecuación $\omega_d = \frac{\pi}{\Delta t}$, donde $\Delta t $ es el tiempo que pasa entre un maximo y el siguiente minimo, medio periodo. Se obtuvo la pseudofrecuencia de oscilacion del transitorio para la carga y la descarga. 
+Ademas se midio el voltaje de sobrepico, $V_{sp}$, y el tiempo de sobrepico, $t_{sp}$. Estos resultado se pueden ver en la Tabla \ref{tab:transitorio_parametros}. 
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|c|c|}
+        \hline
+        Parámetro & Medido & Teórico & Simulado \\
+        \hline
+        \multicolumn{4}{|c|}{Carga} \\
+        \hline
+        $\omega_d$ [krad/s] & 82,13 & 86,39 & 82,24 \\
+        $V_{\text{sobrepico}}$ [V] & 5,226& 5,21 & 5,28 \\
+        $t_{\text{sp}}$ [$\mu$s] & 12,63 & 12,28 & 10,85 \\
+        $V_{\text{final}}$ [V] & 1,45 & 1,62 & 1,63 \\
+        \hline
+        \multicolumn{4}{|c|}{Descarga} \\
+        \hline
+        $\omega_d$ [krad/s] & 91,89 & 99,72 & 98,7 \\
+        $V_{\text{sobrepico}}$ [V] & -6,53 & -6,67 & -6,67 \\
+        $t_{\text{sp}}$ [$\mu$s] & 17,88 & 15,62 & 14,19 \\
+        \hline
+    \end{tabular}
+    \caption{Comparación de los parámetros del transitorio de carga y descarga.}
+    \label{tab:transitorio_parametros}
+\end{table}
+Como se puede apreciar, la pseudofrecuencia amortiguada $(\omega_d)$ resulta mayor en la etapa de descarga que en la de carga. Esto se debe a que, al abrir la llave, se desconectan la fuente, $(R_1)$ y la resistencia interna de la fuente $(R_f)$. Por lo tanto, cambia la resistencia equivalente que interviene en la dinámica del circuito, esto genera un aumento de amortiguamiento.
+
+Considerando además la resistencia serie real de la bobina, $(R_L=12{,}35,\Omega)$, se obtiene para la carga $(\alpha_\text{carga}=59575,s^{-1})$ y $(\omega_{d,\text{carga}}=86{,}39,krad/s)$. En cambio, para la descarga se obtiene $(\alpha_\text{descarga}=13675,s^{-1})$ y $(\omega_{d,\text{descarga}}=99{,}06,krad/s)$.
+
+La disminución de $(\alpha)$ en la descarga respecto de la carga es aproximadamente del $(77\%)$. Como consecuencia, la pseudofrecuencia amortiguada aumenta en la descarga alrededor de un $(14{,}7\%)$. Este comportamiento es coherente con la expresión $(\omega_d=\sqrt{\omega_0^2-\alpha^2})$, ya que al disminuir el amortiguamiento $(\alpha)$, la frecuencia amortiguada se acerca más a la frecuencia natural $(\omega_0)$.
+
+
 
 \subsection{Circuito sin resistencias}
 
