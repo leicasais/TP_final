@@ -1,0 +1,704 @@
+\subsection{Filtros de segundo orden}
+
+En esta sección se analizan los cuatro filtros RLC serie correspondientes a las Figuras 2, 3, 4 y 5. En todos los casos se utilizan los mismos valores de componentes y se modifica solamente el punto donde se mide la tensión de salida. Los valores utilizados son:
+
+\begin{equation}
+    R=\SI{50}{\ohm}, \qquad
+    L=\SI{1}{\milli\henry}, \qquad
+    C=\SI{39}{\nano\farad}.
+\end{equation}
+
+\begin{table}[H]
+\centering
+\caption{$R,\ L,\ C$}
+\label{tab:RLC}
+\begin{tabular}{ccc}
+\toprule
+$R$ & $L$ & $C$ \\
+\midrule
+$\SI{50}{\ohm}$ & $\SI{1}{\milli\henry}$ & $\SI{39}{\nano\farad}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Esquemáticos}
+
+\begin{figure}[H]
+\centering
+
+% ================= CIRCUITO 2 =================
+\begin{subfigure}{0.47\textwidth}
+\centering
+\begin{circuitikz}[american voltages, scale=0.78, transform shape]
+    \draw
+    (0,0) to[sV, l_={$V_{in}$}] (0,3)
+    to[R, l={$R=50\,\Omega$}] (2.2,3)
+    to[L, l={$L=1\,\mathrm{mH}$}] (4.6,3)
+    -- (6,3)
+    to[C, l={$C$}] (6,0)
+    -- (0,0);
+
+\end{circuitikz}
+\caption{Circuito 2}
+\label{fig:circuito2_esq}
+\end{subfigure}
+\hfill
+% ================= CIRCUITO 3 =================
+\begin{subfigure}{0.47\textwidth}
+\centering
+\begin{circuitikz}[american voltages, scale=0.78, transform shape]
+    \draw
+    (0,0) to[sV, l_={$V_{in}$}] (0,3)
+    to[R, l={$R=50\,\Omega$}] (2.0,3)
+    to[C, l={$C$}] (4.2,3)
+    -- (5.8,3)
+    to[L, l={$L=1\,\mathrm{mH}$}] (5.8,0)
+    -- (0,0);
+
+\end{circuitikz}
+\caption{Circuito 3}
+\label{fig:circuito3_esq}
+\end{subfigure}
+
+\vspace{0.6cm}
+
+% ================= CIRCUITO 4 =================
+\begin{subfigure}{0.47\textwidth}
+\centering
+\begin{circuitikz}[american voltages, scale=0.78, transform shape]
+    \draw
+    (0,0) to[sV, l_={$V_{in}$}] (0,3)
+    to[L, l={$L=1\,\mathrm{mH}$}] (2.2,3)
+    to[C, l={$C$}] (4.4,3)
+    -- (5.8,3)
+    to[R, l={$R=50\,\Omega$}] (5.8,0)
+    -- (0,0);
+
+\end{circuitikz}
+\caption{Circuito 4}
+\label{fig:circuito4_esq}
+\end{subfigure}
+\hfill
+% ================= CIRCUITO 5 =================
+\begin{subfigure}{0.47\textwidth}
+\centering
+\begin{circuitikz}[american voltages, scale=0.78, transform shape]
+    \draw
+    (0,0) to[sV, l_={$V_{in}$}] (0,3)
+    to[R, l={$R=50\,\Omega$}] (4.2,3)
+    -- (5.6,3)
+    to[L, l={$L=1\,\mathrm{mH}$}] (5.6,1.5)
+    to[C, l={$C$}] (5.6,0)
+    -- (0,0);
+
+\end{circuitikz}
+\caption{Circuito 5}
+\label{fig:circuito5_esq}
+\end{subfigure}
+
+\caption{Esquemáticos de los filtros RLC serie.}
+\label{fig:esquematicos_filtros}
+\end{figure}
+
+\subsubsection{Modelo común}
+
+Los cuatro filtros comparten la misma impedancia total:
+
+\begin{equation}
+    Z_T(s)=R+sL+\frac{1}{sC}.
+\end{equation}
+
+El denominador común de las funciones transferencia es:
+
+\begin{equation}
+    \boxed{
+    D(s)=LCs^2+RCs+1
+    }
+\end{equation}
+
+Con los valores utilizados:
+
+\begin{equation}
+    \boxed{
+    D(s)=3.9\times10^{-11}s^2+1.95\times10^{-6}s+1
+    }
+\end{equation}
+
+En forma normalizada:
+
+\begin{equation}
+    \boxed{
+    D_n(s)=s^2+5.0\times10^4s+2.5641\times10^{10}
+    }
+\end{equation}
+
+Los parámetros comunes más importantes son:
+
+\begin{equation}
+    \omega_0=\frac{1}{\sqrt{LC}},
+    \qquad
+    f_0=\frac{\omega_0}{2\pi},
+    \qquad
+    Q=\frac{\omega_0L}{R},
+    \qquad
+    \xi=\frac{1}{2Q}.
+\end{equation}
+
+\begin{equation}
+    \boxed{
+    \omega_0=1.60128\times10^5\ \mathrm{rad/s}
+    }
+\end{equation}
+
+\begin{equation}
+    \boxed{
+    f_0=\SI{25.49}{\kilo\hertz},
+    \qquad
+    Q=3.2026,
+    \qquad
+    \xi=0.1561
+    }
+\end{equation}
+
+Los polos comunes son:
+
+\begin{equation}
+    \boxed{
+    p_{1,2}=
+    -\frac{R}{2L}
+    \pm j\sqrt{
+    \frac{1}{LC}
+    -
+    \left(\frac{R}{2L}\right)^2
+    }
+    }
+\end{equation}
+
+\begin{equation}
+    \boxed{
+    p_{1,2}
+    =
+    -2.5\times10^4
+    \pm j\,1.58165\times10^5
+    \ \mathrm{rad/s}
+    }
+\end{equation}
+
+Como los polos tienen parte real negativa, los cuatro filtros son estables. Además, al ser polos complejos conjugados, las respuestas presentan comportamiento resonante.
+
+El ancho de banda del RLC serie y las frecuencias de media potencia son:
+
+\begin{equation}
+    \boxed{
+    BW_\omega=\frac{R}{L}
+    }
+\end{equation}
+
+\begin{equation}
+    \boxed{
+    BW_f=\SI{7.96}{\kilo\hertz},
+    \qquad
+    f_1=\SI{21.82}{\kilo\hertz},
+    \qquad
+    f_2=\SI{29.77}{\kilo\hertz}
+    }
+\end{equation}
+
+\begin{table}[H]
+\centering
+\caption{$LC,\ RC,\ \omega_0,\ f_0,\ Q,\ \xi$}
+\label{tab:parametros_comunes_1}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{cccccc}
+\toprule
+$LC$ & $RC$ & $\omega_0$ & $f_0$ & $Q$ & $\xi$ \\
+\midrule
+$3.9\times10^{-11}$ & $1.95\times10^{-6}$ & $1.60128\times10^5\,\mathrm{rad/s}$ & $\SI{25.49}{\kilo\hertz}$ & $3.2026$ & $0.1561$ \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{$p_{1,2},\ BW,\ f_1,\ f_2$}
+\label{tab:parametros_comunes_2}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{cccc}
+\toprule
+$p_{1,2}$ & $BW$ & $f_1$ & $f_2$ \\
+\midrule
+$-2.5\times10^4\pm j\,1.58165\times10^5$ & $\SI{7.96}{\kilo\hertz}$ & $\SI{21.82}{\kilo\hertz}$ & $\SI{29.77}{\kilo\hertz}$ \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\subsubsection{Funciones transferencia}
+
+\begin{table}[H]
+\centering
+\caption{$H_2(s),\ H_3(s),\ H_4(s),\ H_5(s)$}
+\label{tab:transferencias}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{cccc}
+\toprule
+$H_2(s)$ & $H_3(s)$ & $H_4(s)$ & $H_5(s)$ \\
+\midrule
+$\displaystyle \frac{1}{LCs^2+RCs+1}$ &
+$\displaystyle \frac{LCs^2}{LCs^2+RCs+1}$ &
+$\displaystyle \frac{RCs}{LCs^2+RCs+1}$ &
+$\displaystyle \frac{LCs^2+1}{LCs^2+RCs+1}$ \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\subsubsection{Circuito 2}
+
+En el Circuito 2 se mide la salida sobre el capacitor. Por divisor de tensión:
+
+\begin{equation}
+    H_2(s)=\frac{V_C(s)}{V_{in}(s)}
+    =
+    \frac{Z_C}{Z_R+Z_L+Z_C}.
+\end{equation}
+
+\begin{equation}
+    \boxed{
+    H_2(s)=
+    \frac{1}
+    {LCs^2+RCs+1}
+    }
+\end{equation}
+
+\begin{equation}
+    \boxed{
+    H_2(s)=
+    \frac{1}
+    {3.9\times10^{-11}s^2+1.95\times10^{-6}s+1}
+    }
+\end{equation}
+
+En baja frecuencia:
+
+\begin{equation}
+    \lim_{\omega\to0}H_2(j\omega)=1.
+\end{equation}
+
+En alta frecuencia:
+
+\begin{equation}
+    \lim_{\omega\to\infty}H_2(j\omega)=0.
+\end{equation}
+
+Por lo tanto, el Circuito 2 se comporta como un filtro pasa bajos de segundo orden.
+
+La frecuencia de corte y el pico de resonancia se obtienen mediante:
+
+\begin{equation}
+    |H_2(j\omega_c)|^2=\frac{1}{2},
+    \qquad
+    \omega_p=\omega_0\sqrt{1-\frac{1}{2Q^2}}.
+\end{equation}
+
+\begin{equation}
+    \boxed{
+    f_c=\SI{38.91}{\kilo\hertz},
+    \qquad
+    f_p=\SI{24.86}{\kilo\hertz},
+    \qquad
+    |H|_{\max}=\SI{10.22}{\decibel}
+    }
+\end{equation}
+
+\begin{table}[H]
+\centering
+\caption{$H_2(s)$}
+\label{tab:circuito2_parametros}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{cccccc}
+\toprule
+$z_i$ & $p_i$ & $f_0$ & $f_c$ & $f_p$ & $|H|_{\max}$ \\
+\midrule
+$\varnothing$ &
+$-2.5\times10^4\pm j\,1.58165\times10^5$ &
+$\SI{25.49}{\kilo\hertz}$ &
+$\SI{38.91}{\kilo\hertz}$ &
+$\SI{24.86}{\kilo\hertz}$ &
+$\SI{10.22}{\decibel}$ \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+El diagrama de polos y ceros muestra que no existen ceros finitos. Como el numerador es constante y el denominador es de segundo orden, la ganancia cae para altas frecuencias. Esto se corresponde con un filtro pasa bajos.
+
+or lo tanto, el Circuito 2 se comporta como un filtro pasa bajos de segundo orden.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.88\textwidth]{filtro2_modulo_fase_juntos.png}
+\caption{Respuesta en frecuencia del Circuito 2. Se muestran en un mismo gráfico el módulo y la fase, tanto teóricos como simulados.}
+\label{fig:circuito2_bode}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.55\textwidth]{filtro2_polos_ceros.png}
+\caption{$p_i,\ z_i$ de $H_2(s)$.}
+\label{fig:circuito2_pz}
+\end{figure}
+
+\subsubsection{Circuito 3}
+
+En el Circuito 3 se mide la salida sobre el inductor:
+
+\begin{equation}
+    H_3(s)=\frac{V_L(s)}{V_{in}(s)}
+    =
+    \frac{Z_L}{Z_R+Z_L+Z_C}.
+\end{equation}
+
+\begin{equation}
+    \boxed{
+    H_3(s)=
+    \frac{LCs^2}
+    {LCs^2+RCs+1}
+    }
+\end{equation}
+
+\begin{equation}
+    \boxed{
+    H_3(s)=
+    \frac{3.9\times10^{-11}s^2}
+    {3.9\times10^{-11}s^2+1.95\times10^{-6}s+1}
+    }
+\end{equation}
+
+En baja frecuencia:
+
+\begin{equation}
+    \lim_{\omega\to0}H_3(j\omega)=0.
+\end{equation}
+
+En alta frecuencia:
+
+\begin{equation}
+    \lim_{\omega\to\infty}H_3(j\omega)=1.
+\end{equation}
+
+Por lo tanto, el Circuito 3 se comporta como un filtro pasa altos de segundo orden.
+
+La frecuencia de corte y el pico de resonancia se obtienen mediante:
+
+\begin{equation}
+    |H_3(j\omega_c)|^2=\frac{1}{2},
+    \qquad
+    \omega_p=
+    \frac{\omega_0}
+    {\sqrt{1-\frac{1}{2Q^2}}}.
+\end{equation}
+
+\begin{equation}
+    \boxed{
+    f_c=\SI{16.69}{\kilo\hertz},
+    \qquad
+    f_p=\SI{26.13}{\kilo\hertz},
+    \qquad
+    |H|_{\max}=\SI{10.22}{\decibel}
+    }
+\end{equation}
+
+\begin{table}[H]
+\centering
+\caption{$H_3(s)$}
+\label{tab:circuito3_parametros}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{cccccc}
+\toprule
+$z_i$ & $p_i$ & $f_0$ & $f_c$ & $f_p$ & $|H|_{\max}$ \\
+\midrule
+$0_{(doble)} $ &
+$-2.5\times10^4\pm j\,1.58165\times10^5$ &
+$\SI{25.49}{\kilo\hertz}$ &
+$\SI{16.69}{\kilo\hertz}$ &
+$\SI{26.13}{\kilo\hertz}$ &
+$\SI{10.22}{\decibel}$ \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+El cero doble en el origen anula la ganancia en continua. Como el numerador y el denominador tienen el mismo orden, la ganancia tiende a uno para altas frecuencias. Esto se corresponde con un filtro pasa altos.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.88\textwidth]{filtro3_modulo_fase_juntos.png}
+\caption{Respuesta en frecuencia del Circuito 3. Se muestran en un mismo gráfico el módulo y la fase, tanto teóricos como simulados.}
+\label{fig:circuito3_bode}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.55\textwidth]{filtro3_polos_ceros.png}
+\caption{$p_i,\ z_i$ de $H_3(s)$.}
+\label{fig:circuito3_pz}
+\end{figure}
+
+\subsubsection{Circuito 4}
+
+En el Circuito 4 se mide la salida sobre la resistencia:
+
+\begin{equation}
+    H_4(s)=\frac{V_R(s)}{V_{in}(s)}
+    =
+    \frac{Z_R}{Z_R+Z_L+Z_C}.
+\end{equation}
+
+\begin{equation}
+    \boxed{
+    H_4(s)=
+    \frac{RCs}
+    {LCs^2+RCs+1}
+    }
+\end{equation}
+
+\begin{equation}
+    \boxed{
+    H_4(s)=
+    \frac{1.95\times10^{-6}s}
+    {3.9\times10^{-11}s^2+1.95\times10^{-6}s+1}
+    }
+\end{equation}
+
+En baja y alta frecuencia:
+
+\begin{equation}
+    \lim_{\omega\to0}H_4(j\omega)=0,
+    \qquad
+    \lim_{\omega\to\infty}H_4(j\omega)=0.
+\end{equation}
+
+En resonancia:
+
+\begin{equation}
+    X_L=X_C,
+    \qquad
+    Z_T(\omega_0)=R,
+    \qquad
+    H_4(j\omega_0)=1.
+\end{equation}
+
+Por lo tanto, el Circuito 4 se comporta como un filtro pasa banda de segundo orden.
+
+Los parámetros principales son:
+
+\begin{equation}
+    \boxed{
+    f_0=\SI{25.49}{\kilo\hertz},
+    \qquad
+    f_1=\SI{21.82}{\kilo\hertz},
+    \qquad
+    f_2=\SI{29.77}{\kilo\hertz},
+    \qquad
+    BW=\SI{7.96}{\kilo\hertz}
+    }
+\end{equation}
+
+La ganancia máxima ideal es:
+
+\begin{equation}
+    \boxed{
+    |H_4|_{\max}=1=0\,\mathrm{dB}
+    }
+\end{equation}
+
+No puede superar $0\,\mathrm{dB}$ porque el circuito es pasivo y:
+
+\begin{equation}
+    |H_4(j\omega)|=
+    \frac{R}
+    {
+    \sqrt{
+    R^2+
+    \left(\omega L-\frac{1}{\omega C}\right)^2
+    }
+    }
+    \le 1.
+\end{equation}
+
+\begin{table}[H]
+\centering
+\caption{$H_4(s)$}
+\label{tab:circuito4_parametros}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{ccccccc}
+\toprule
+$z_i$ & $p_i$ & $f_0$ & $f_1$ & $f_2$ & $BW$ & $|H|_{\max}$ \\
+\midrule
+$0$ &
+$-2.5\times10^4\pm j\,1.58165\times10^5$ &
+$\SI{25.49}{\kilo\hertz}$ &
+$\SI{21.82}{\kilo\hertz}$ &
+$\SI{29.77}{\kilo\hertz}$ &
+$\SI{7.96}{\kilo\hertz}$ &
+$\SI{0}{\decibel}$ \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+El cero en el origen explica el rechazo de continua. Además, al existir un cero implícito en el infinito, la ganancia también cae en alta frecuencia. Entre ambas zonas de rechazo queda la banda pasante centrada en $f_0$.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.88\textwidth]{filtro4_modulo_fase_juntos.png}
+\caption{Respuesta en frecuencia del Circuito 4. Se muestran en un mismo gráfico el módulo y la fase, tanto teóricos como simulados.}
+\label{fig:circuito4_bode}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.55\textwidth]{filtro4_polos_ceros.png}
+\caption{$p_i,\ z_i$ de $H_4(s)$.}
+\label{fig:circuito4_pz}
+\end{figure}
+
+\subsubsection{Circuito 5}
+
+En el Circuito 5 se mide la salida sobre la asociación serie formada por $L$ y $C$:
+
+\begin{equation}
+    H_5(s)=\frac{V_L(s)+V_C(s)}{V_{in}(s)}
+    =
+    \frac{Z_L+Z_C}{Z_R+Z_L+Z_C}.
+\end{equation}
+
+\begin{equation}
+    \boxed{
+    H_5(s)=
+    \frac{LCs^2+1}
+    {LCs^2+RCs+1}
+    }
+\end{equation}
+
+\begin{equation}
+    \boxed{
+    H_5(s)=
+    \frac{3.9\times10^{-11}s^2+1}
+    {3.9\times10^{-11}s^2+1.95\times10^{-6}s+1}
+    }
+\end{equation}
+
+En baja y alta frecuencia:
+
+\begin{equation}
+    \lim_{\omega\to0}H_5(j\omega)=1,
+    \qquad
+    \lim_{\omega\to\infty}H_5(j\omega)=1.
+\end{equation}
+
+En resonancia:
+
+\begin{equation}
+    X_L=X_C,
+    \qquad
+    Z_L+Z_C=0,
+    \qquad
+    H_5(j\omega_0)=0.
+\end{equation}
+
+Por lo tanto, el Circuito 5 se comporta como un filtro rechaza banda o notch.
+
+Los ceros finitos se obtienen del numerador:
+
+\begin{equation}
+    LCs^2+1=0
+    \quad\Rightarrow\quad
+    \boxed{
+    z_{1,2}=\pm j\omega_0
+    }
+\end{equation}
+
+\begin{equation}
+    \boxed{
+    z_{1,2}=\pm j\,1.60128\times10^5\ \mathrm{rad/s}
+    }
+\end{equation}
+
+Los parámetros principales son:
+
+\begin{equation}
+    \boxed{
+    f_0=\SI{25.49}{\kilo\hertz},
+    \qquad
+    f_1=\SI{21.82}{\kilo\hertz},
+    \qquad
+    f_2=\SI{29.77}{\kilo\hertz},
+    \qquad
+    BW=\SI{7.96}{\kilo\hertz}
+    }
+\end{equation}
+
+\begin{table}[H]
+\centering
+\caption{$H_5(s)$}
+\label{tab:circuito5_parametros}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{ccccccc}
+\toprule
+$z_i$ & $p_i$ & $f_0$ & $f_1$ & $f_2$ & $BW$ & $|H|_{\min}$ \\
+\midrule
+$\pm j\,1.60128\times10^5$ &
+$-2.5\times10^4\pm j\,1.58165\times10^5$ &
+$\SI{25.49}{\kilo\hertz}$ &
+$\SI{21.82}{\kilo\hertz}$ &
+$\SI{29.77}{\kilo\hertz}$ &
+$\SI{7.96}{\kilo\hertz}$ &
+$-\infty\,\mathrm{dB}$ \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+La ubicación de los ceros sobre el eje imaginario en $\pm j\omega_0$ explica el rechazo ideal de la frecuencia de resonancia. En una implementación real, el rechazo no será infinito debido a tolerancias, resistencia serie del inductor, pérdidas parásitas y limitaciones de medición.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.88\textwidth]{filtro5_modulo_fase_juntos.png}
+\caption{Respuesta en frecuencia del Circuito 5. Se muestran en un mismo gráfico el módulo y la fase, tanto teóricos como simulados.}
+\label{fig:circuito5_bode}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.55\textwidth]{filtro5_polos_ceros.png}
+\caption{$p_i,\ z_i$ de $H_5(s)$.}
+\label{fig:circuito5_pz}
+\end{figure}
+
+\subsubsection{Comparación general}
+
+\begin{table}[H]
+\centering
+\caption{$H_i(s),\ z_i,\ f_i$}
+\label{tab:resumen_general_filtros}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{ccccc}
+\toprule
+$H_i(s)$ & $H_2(s)$ & $H_3(s)$ & $H_4(s)$ & $H_5(s)$ \\
+\midrule
+$z_i$ & $\varnothing$ & $0,\ 0$ & $0$ & $\pm j\omega_0$ \\
+$f_i$ & $f_c=\SI{38.91}{\kilo\hertz}$ & $f_c=\SI{16.69}{\kilo\hertz}$ & $f_0=\SI{25.49}{\kilo\hertz}$ & $f_0=\SI{25.49}{\kilo\hertz}$ \\
+$|H|$ & $\SI{10.22}{\decibel}$ & $\SI{10.22}{\decibel}$ & $\SI{0}{\decibel}$ & $-\infty\,\mathrm{dB}$ \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+Los cuatro filtros comparten el mismo denominador, por lo que tienen los mismos polos, la misma frecuencia natural y el mismo factor de calidad. La diferencia entre ellos está determinada por el numerador, que depende del elemento sobre el cual se mide la salida.
+
+En el Circuito 2, la salida sobre el capacitor genera un filtro pasa bajos. En el Circuito 3, la salida sobre el inductor genera un filtro pasa altos. En el Circuito 4, la salida sobre la resistencia genera un filtro pasa banda. En el Circuito 5, la salida sobre la asociación serie $LC$ genera un filtro rechaza banda, ya que en resonancia se cumple $Z_L+Z_C=0$.
+
+Las curvas teóricas y las curvas simuladas por impedancias coinciden porque ambas se calcularon con el mismo modelo ideal. En una medición real pueden aparecer diferencias por tolerancias de los componentes, resistencia interna de la fuente, resistencia serie del inductor y efectos parásitos.
