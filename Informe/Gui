@@ -1,0 +1,56 @@
+\section{Desarrollo de la Interfaz Gráfica de Usuario (GUI) en Python}
+
+\subsection{Objetivo del Módulo}
+El objetivo de este desarrollo fue diseñar e implementar una aplicación de escritorio interactiva en Python que permitiera la visualización y análisis de datos vectoriales provenientes de archivos \texttt{.csv} generados por osciloscopios y analizadores de laboratorio. El foco principal se puso en crear una herramienta intuitiva y dinámica, capaz de procesar archivos con diferentes cantidades de canales sin requerir modificaciones en el código fuente, agilizando así la contrastación de resultados teóricos, simulados y experimentales.
+
+\subsection{Arquitectura del Software y Librerías Utilizadas}
+Para el desarrollo se usó el siguiente conjunto de librerías del ecosistema Python:
+
+\begin{itemize}
+    \item \textbf{Tkinter \& TkinterDnD2:} Utilizadas para construir la interfaz de ventanas, paneles de control laterales y habilitar la funcionalidad avanzada de arrastrar y soltar (\textit{Drag \& Drop}) para la carga rápida de archivos.
+    \item \textbf{Pandas:} Empleada como el motor principal de ingesta de datos. Permite analizar dinámicamente matrices delimitadas por comas o tabulaciones, manejando excepciones de codificación y limpiando automáticamente filas redundantes.
+    \item \textbf{Numpy:} Utilizada para la manipulación vectorial eficiente de las señales (operaciones matemáticas de escala, desfasaje y búsqueda de picos en tiempo real).
+    \item \textbf{Matplotlib (TkAgg):} Actúa como el motor de renderizado gráfico de grado científico, integrado directamente dentro del lienzo de la aplicación.
+\end{itemize}
+
+\subsection{Procesamiento Dinámico de Archivos CSV y Robustez}
+El motor de lectura basado en \texttt{pandas} cuenta con un sistema de adaptación y protección:
+
+\begin{itemize}
+    \item \textbf{Detección Dinámica de Canales:} El algoritmo evalúa las dimensiones de la matriz de datos extraída (\texttt{df.shape[1]}). Al restar la columna correspondiente al eje base (tiempo o frecuencia), determina automáticamente cuántos canales de medición posee el ensayo, soportando múltiples configuraciones sin alterar el código.
+    \item \textbf{Manejo de Errores (Anti-Crash):} Toda la lógica de carga está encapsulada en estructuras de control \texttt{try/except}. Si se intenta ingresar un archivo corrupto, con formato erróneo (como un PDF o una imagen) o carente de las cabeceras estándar, el sistema captura la excepción, aborta la carga de forma segura y despliega un cuadro de diálogo informativo al usuario, garantizando que la aplicación nunca se cierre de manera imprevista.
+\end{itemize}
+
+\subsection{Sistema de Detección Automática y Modo Dual}
+Para satisfacer la necesidad de analizar tanto señales en el dominio del tiempo como la respuesta en frecuencia de los filtros, se dotó al software de una arquitectura de ``Modo Dual''. Al cargar un archivo, el programa ejecuta una rutina de inspección (\texttt{\_is\_bode\_csv}) que analiza los encabezados y ramifica el comportamiento de la herramienta:
+
+\begin{itemize}
+    \item \textbf{Modo Osciloscopio:} Se activa si el archivo contiene descriptores temporales.
+    \item \textbf{Modo Bode:} Se activa si se detectan variables de frecuencia (\texttt{"Frequency"}, \texttt{"Gain"}, \texttt{"Phase"}), reconfigurando el motor gráfico para diagramas de respuesta en frecuencia.
+\end{itemize}
+
+\subsection{Funcionalidades de Procesamiento y Análisis Temporal}
+El usuario dispone de un panel lateral para interactuar matemáticamente con los vectores antes de su ploteo. Para el dominio del tiempo y controles generales:
+
+\begin{itemize}
+    \item \textbf{Escalado de Unidades Automático:} Algoritmos analizan los valores máximos absolutos de los vectores. En el eje del tiempo, si los valores son del orden de los submúltiplos, el vector se escala y adapta automáticamente la nomenclatura a milisegundos (ms), microsegundos ($\mu$s) o nanosegundos (ns). El mismo criterio se aplica en el eje de las amplitudes (mV o $\mu$V).
+    \item \textbf{Gestión Individual de Canales:} Cada canal genera una tarjeta de control que permite: ocultar/mostrar la señal, modificar su color y aplicar un \textit{Offset} y una \textit{Escala} mediante una ecuación lineal.
+    \item \textbf{Escala Logarítmica en Y (Exclusiva Osciloscopio):} Se incluyó la opción de visualizar el eje Y en escala logarítmica para señales temporales. Para evitar errores de dominio matemático con valores nulos o negativos, el algoritmo aplica un desplazamiento preventivo (\textit{shift}) a la señal antes de graficarla.
+\end{itemize}
+
+\subsection{Renderizado Avanzado y Análisis de Diagramas de Bode}
+Para la correcta visualización e interpretación de la respuesta en frecuencia, se implementaron rutinas gráficas y analíticas específicas:
+
+\begin{itemize}
+    \item \textbf{Ejes Dobles Acoplados (\textit{Twin Axes}):} Se utilizó la función \texttt{twinx()} para superponer dos escalas verticales independientes. El eje izquierdo grafica la Ganancia en decibeles (dB) mediante curvas continuas, y el derecho mapea la Fase en grados ($^\circ$) mediante curvas punteadas.
+    \item \textbf{Escala Semilogarítmica y Formateo:} El eje de las frecuencias opera en escala logarítmica (\texttt{semilogx}). Para evitar la densidad visual de la notación científica, un \texttt{ScalarFormatter} fuerza la visualización a números enteros convencionales (100, 1000, 10000~Hz).
+    \item \textbf{Cálculo Analítico de Frecuencias de Corte ($-3$\text{ dB}):} Además de trazar la línea de referencia horizontal fija, el software calcula matemáticamente el valor exacto de frecuencia donde la ganancia cae a $-3\text{ dB}$. Dado que el eje de abscisas opera en escala logarítmica ($\log_{10}$), aplicar una regla de tres lineal convencional entre puntos discretos introduciría un severo error de arrastre. Para mitigarlo, el algoritmo detecta los cambios de signo respecto al umbral y resuelve la raíz mediante una interpolación logarítmica:
+    \[
+    \log_{10}(f_c) = \log_{10}(f_1) + (-3 - y_1) \frac{\log_{10}(f_2) - \log_{10}(f_1)}{y_2 - y_1}
+    \]
+    obteniendo la frecuencia real mediante $f_c = 10^{\log_{10}(f_c)}$. El método es generalizado: al evaluar diferenciales vectoriales, detecta automáticamente si la curva corta el umbral una vez (filtros pasa-bajos / pasa-altos) o múltiples veces (filtros pasa-banda o rechaza-banda), situando marcadores dinámicos con etiquetas de fondo opaco para garantizar su legibilidad sobre la grilla.
+    \item \textbf{Detección Automática de Frecuencia Central:} Mediante el uso de \texttt{np.argmax}, la opción de \textit{Marcar máx/mín} escanea el vector de ganancia y sitúa un indicador en el pico más alto de la curva. Esto permite obtener automáticamente el valor exacto en dB y la frecuencia central exacta (en Hz) del filtro pasa-banda diseñado, agilizando enormemente la extracción de datos.
+\end{itemize}
+
+\subsection{Adaptación Estética para Documentación}
+A nivel de interfaz, se optó por un diseño oscuro (\textit{Dark Mode}) para los paneles de control, reduciendo la fatiga visual en el laboratorio. No obstante, el lienzo principal de \texttt{Matplotlib} se forzó deliberadamente a operar con un fondo blanco puro, grillas sutiles y tipografía en color negro. Esta decisión asegura que las gráficas exportadas o capturadas cuenten con el contraste óptimo para ser insertadas directamente en reportes académicos o impresas, maximizando la legibilidad de las curvas.
