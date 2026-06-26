@@ -1,0 +1,101 @@
+\subsubsection{Ganancia máxima del Circuito 4}
+
+En el Circuito 4 la salida se mide sobre la resistencia \(R\). Por lo tanto, la función transferencia se obtiene mediante un divisor de tensión en un circuito RLC serie:
+
+\begin{equation}
+    H_4(s)=\frac{V_R(s)}{V_{in}(s)}
+    =
+    \frac{R}{R+sL+\frac{1}{sC}}.
+\end{equation}
+
+Normalizando:
+
+\begin{equation}
+    \boxed{
+    H_4(s)=
+    \frac{RCs}{LCs^2+RCs+1}
+    }
+\end{equation}
+
+En régimen sinusoidal:
+
+\begin{equation}
+    H_4(j\omega)=
+    \frac{R}
+    {R+j\left(\omega L-\frac{1}{\omega C}\right)}.
+\end{equation}
+
+Por lo tanto, el módulo de la transferencia es:
+
+\begin{equation}
+    |H_4(j\omega)|=
+    \frac{R}
+    {
+    \sqrt{
+    R^2+
+    \left(\omega L-\frac{1}{\omega C}\right)^2
+    }
+    }.
+\end{equation}
+
+La ganancia máxima se obtiene cuando la parte reactiva total del circuito serie se anula:
+
+\begin{equation}
+    \omega L-\frac{1}{\omega C}=0.
+\end{equation}
+
+Entonces:
+
+\begin{equation}
+    \omega_0=\frac{1}{\sqrt{LC}}.
+\end{equation}
+
+En resonancia se cumple:
+
+\begin{equation}
+    Z_T(\omega_0)=R.
+\end{equation}
+
+Por lo tanto:
+
+\begin{equation}
+    H_4(j\omega_0)=\frac{R}{R}=1.
+\end{equation}
+
+Entonces, la ganancia máxima ideal es:
+
+\begin{equation}
+    \boxed{
+    |H_4|_{\max}=1
+    }
+\end{equation}
+
+En decibeles:
+
+\begin{equation}
+    \boxed{
+    |H_4|_{\max,\mathrm{dB}}
+    =
+    20\log_{10}(1)
+    =
+    0\ \mathrm{dB}
+    }
+\end{equation}
+
+El Circuito 4 no puede ganar más de \(0\,\mathrm{dB}\), ya que es un circuito pasivo. Para cualquier frecuencia se cumple:
+
+\begin{equation}
+    \sqrt{
+    R^2+
+    \left(\omega L-\frac{1}{\omega C}\right)^2
+    }
+    \ge R.
+\end{equation}
+
+Por lo tanto:
+
+\begin{equation}
+    |H_4(j\omega)|\le 1.
+\end{equation}
+
+La igualdad se alcanza únicamente en resonancia, cuando \(X_L=X_C\). Por eso, el valor máximo posible de la ganancia es \(0\,\mathrm{dB}\).

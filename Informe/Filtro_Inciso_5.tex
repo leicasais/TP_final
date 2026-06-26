@@ -1,0 +1,88 @@
+\subsubsection{Filtro pasa banda de primer orden}
+
+Un filtro pasa banda debe atenuar tanto bajas como altas frecuencias, dejando pasar solamente un rango intermedio. Por lo tanto, debe cumplirse:
+
+\begin{equation}
+    \lim_{\omega\to0}|H(j\omega)|=0
+\end{equation}
+
+y también:
+
+\begin{equation}
+    \lim_{\omega\to\infty}|H(j\omega)|=0.
+\end{equation}
+
+Una función transferencia de primer orden general puede escribirse como:
+
+\begin{equation}
+    H_1(s)=\frac{a_1s+a_0}{b_1s+b_0}.
+\end{equation}
+
+Para que el circuito rechace bajas frecuencias, debe cumplirse:
+
+\begin{equation}
+    H_1(0)=0.
+\end{equation}
+
+Esto implica:
+
+\begin{equation}
+    a_0=0.
+\end{equation}
+
+Entonces la transferencia queda:
+
+\begin{equation}
+    H_1(s)=\frac{a_1s}{b_1s+b_0}.
+\end{equation}
+
+Sin embargo, para altas frecuencias:
+
+\begin{equation}
+    \lim_{\omega\to\infty}H_1(j\omega)=\frac{a_1}{b_1}.
+\end{equation}
+
+Este valor no es cero, por lo que no se atenúan las altas frecuencias. En consecuencia, esta transferencia corresponde a un filtro pasa altos, no a un pasa banda.
+
+Por otro lado, si se buscara que la ganancia tienda a cero en altas frecuencias, la transferencia tendría que ser de la forma:
+
+\begin{equation}
+    H_1(s)=\frac{a_0}{b_1s+b_0}.
+\end{equation}
+
+Pero en ese caso:
+
+\begin{equation}
+    H_1(0)=\frac{a_0}{b_0}\neq0.
+\end{equation}
+
+Por lo tanto, no se atenúan las bajas frecuencias. Esta transferencia corresponde a un filtro pasa bajos.
+
+Entonces:
+
+\begin{equation}
+    \boxed{
+    \text{No se puede realizar un verdadero filtro pasa banda de primer orden.}
+    }
+\end{equation}
+
+Para obtener un filtro pasa banda se necesita, como mínimo, una transferencia con rechazo en bajas frecuencias y rechazo en altas frecuencias. Una forma típica de segundo orden es:
+
+\begin{equation}
+    \boxed{
+    H_{BP}(s)=
+    K
+    \frac{s}
+    {s^2+\frac{\omega_0}{Q}s+\omega_0^2}
+    }
+\end{equation}
+
+También puede obtenerse un pasa banda conectando en cascada un filtro pasa altos de primer orden y un filtro pasa bajos de primer orden. Sin embargo, el sistema resultante tiene dos polos, por lo que el orden total es dos.
+
+\begin{equation}
+    \boxed{
+    \text{Un pasa banda requiere al menos dos frecuencias críticas.}
+    }
+\end{equation}
+
+Por este motivo, un único filtro de primer orden no alcanza para formar una banda pasante acotada.
