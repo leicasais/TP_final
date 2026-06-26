@@ -1,12 +1,9 @@
-# Visualizador de Osciloscopio — TP Final TC1
-
-GUI en Python para visualizar archivos CSV exportados desde osciloscopios de laboratorio.
+# Visualizador de Osciloscopio y Bode — TP Final TC1
+GUI en Python para visualizar archivos CSV exportados desde osciloscopios de laboratorio y diagramas de Bode.
 
 ---
 
 ## Requisitos
-
-- Las siguientes librerías:
 
 ```bash
 py -m pip install pandas matplotlib
@@ -28,7 +25,11 @@ py gui_osciloscopio.py
 
 ---
 
-## Formato de CSV soportado
+## Formatos de CSV soportados
+
+El programa **detecta automáticamente** el tipo de archivo al cargarlo.
+
+### Osciloscopio
 
 El archivo debe tener el siguiente encabezado de dos líneas:
 
@@ -40,30 +41,56 @@ second,Volt,Volt,Volt,Volt
 ```
 
 - Primera fila: nombres de columnas (`x-axis`, `1`, `2`, ...)
-- Segunda fila: unidades (`second`, `Volt`, ...)
+- Segunda fila: unidades (`second`, `Volt`, ...) — se descarta automáticamente
 - Resto: datos numéricos
 
 Soporta archivos de **1 a 4 canales**. El separador puede ser `,` o tabulación.
+
+### Bode
+
+Formato exportado por el generador de funciones del laboratorio:
+
+```
+#, Frequency (Hz), Amplitude (Vpp), Gain (dB), Phase (°)
+1,10.0,0.4000,-25.94,86.54
+2,11.0,0.4000,-25.11,86.35
+...
+```
+
+- El programa detecta automáticamente este formato por los nombres de columna
+- Soporta el encoding `latin-1` usado por algunos equipos (símbolo `°`)
+- La columna `Amplitude (Vpp)` se ignora; se grafican **Ganancia** y **Fase**
 
 ---
 
 ## Funcionalidades
 
-- Carga archivos CSV con cualquier número de canales (Entre 1 y 4)
-- Ejes con nombre y unidades
-- Escala automática en ambos ejes (ns / µs / ms / s o nV / µV / mV / V)
-- Título del gráfico editable (se inicializa con el nombre del archivo)
-- Offset y escala (amplitud) ajustables por canal
+### Generales
+- Detección automática del tipo de CSV (osciloscopio o Bode)
 - No crashea con archivos inválidos: muestra un mensaje de error
-- Color personalizable por canal
-- Grilla configurable (mostrar/ocultar)
-- Escala logarítmica en el eje Y (desplaza automáticamente si hay valores negativos)
 - Drag & Drop de archivos CSV (requiere `tkinterdnd2`)
+- Título del gráfico editable (se inicializa con el nombre del archivo)
+- Grilla configurable (mostrar/ocultar)
+
+### Modo Osciloscopio
+- Carga archivos CSV con cualquier número de canales (entre 1 y 4)
+- Escala automática en el eje X (ns / µs / ms / s)
+- Escala automática en el eje Y (µV / mV / V)
+- Offset y escala (amplitud) ajustables por canal
+- Color personalizable por canal
+- Escala logarítmica en el eje Y (desplaza automáticamente si hay valores negativos)
 - Marcadores de máximo y mínimo por canal
+
+### Modo Bode
+- Grafica Ganancia [dB] y Fase [°] en un único gráfico con doble eje Y
+- Eje X en escala logarítmica (Hz)
+- Línea de referencia en −3 dB
 
 ---
 
 ## Controles
+
+### Controles globales (ambos modos)
 
 | Control | Descripción |
 |---|---|
@@ -71,6 +98,11 @@ Soporta archivos de **1 a 4 canales**. El separador puede ser `,` o tabulación.
 | **Drag & Drop** | Arrastrá el CSV directo a la ventana |
 | **Título** | Campo editable; el gráfico se actualiza mientras escribís |
 | **Mostrar grilla** | Activa/desactiva la grilla |
+
+### Solo Modo Osciloscopio
+
+| Control | Descripción |
+|---|---|
 | **Escala log en Y** | Cambia el eje Y a escala logarítmica |
 | **Marcar máx/mín** | Marca el punto máximo y mínimo de cada canal |
 | **CH1–CH4** | Tilde para mostrar/ocultar cada canal |
